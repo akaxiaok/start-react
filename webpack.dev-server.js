@@ -7,6 +7,7 @@ const common = require('./webpack.common.js');
 module.exports = merge.strategy({
   entry: 'replace', // or 'replace', defaults to 'append'
 })(common, {
+  mode: 'development',
   devtool: 'inline-source-map',
   entry: {
     // hot loader entry 文件都要添加 module.hot.accept
@@ -27,21 +28,28 @@ module.exports = merge.strategy({
     publicPath: '/',
     chunkFilename: '[name].bundle.js',
   },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10
+        }
+      }
+    }
+  },
   plugins: [
     new HtmlWebpackPlugin({
       title: 'ReactApp'
     }), // 生成 html 文件
     new webpack.NamedModulesPlugin(),
-    new webpack.HotModuleReplacementPlugin(), // 热替换 用于自定义的 server
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   name: 'common' // 指定公共 bundle 的名称
-    // }),
+    new webpack.HotModuleReplacementPlugin() // 热替换 用于自定义的 server
   ],  // 改用 express & webpack-dev-middleware
   devServer: {
     contentBase: './dist', // webpackServer 使用的路径
     historyApiFallback: true, // 不跳转
     inline: true,
-    open: false,// 是否自动打开浏览器
+    open: true,// 是否自动打开浏览器
     hot: true,
   },
 });
